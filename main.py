@@ -1,6 +1,15 @@
+#!/usr/bin/env python3
+
+import uvicorn
+import configparser
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from routes import router 
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+host = config.get('server', 'host')
+port = config.getint('server', 'port')
 
 
 app = FastAPI(title="Task Backend")
@@ -17,5 +26,5 @@ async def root():
     return {"message": "test"}
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    uvicorn.run(app, host=host, port=port)

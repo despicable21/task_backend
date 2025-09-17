@@ -20,7 +20,7 @@ Instrumentator().instrument(app).expose(app)
 #подключение из routes.py
 app.include_router(router)
 
-#тестовый. нет await(async def для единообразия)
+#тестовый
 @app.get("/")
 async def root():
     return {"message": "test"}

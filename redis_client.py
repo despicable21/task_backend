@@ -1,18 +1,15 @@
-#!/usr/bin/env python3
-import configparser
 import contextlib
-from redis.asyncio import Redis
 from typing import AsyncGenerator
-
-#чтение конфигурации из config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-REDIS_HOST = config.get('redis', 'host')
-REDIS_PORT = config.getint('redis', 'port')
-REDIS_DB = config.getint('redis', 'db')
+from redis.asyncio import Redis
+from settings import settings
 
 def get_redis_client():
-    return Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
+    return Redis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        db=settings.REDIS_DB,
+        decode_responses=settings.REDIS_DECODE_RESPONSES,
+    )
 
 @contextlib.asynccontextmanager
 async def redis_maker() -> AsyncGenerator[Redis, None]:
@@ -20,4 +17,4 @@ async def redis_maker() -> AsyncGenerator[Redis, None]:
     try:
         yield redis_client
     finally:
-        await redis_client.aclose(True)
+        await redis_client.aclose()

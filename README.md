@@ -10,56 +10,44 @@ Backend для системы задач, реализованный на FastAP
 
 ## Требования
 - **Python**
-- Зависимости (см. `requirements.txt`):
-  - `FastAPI`
-  - `Uvicorn`
-  - `PyJWT`
-  - `redis.asyncio`
-  - `prometheus-fastapi-instrumentator`
+- Зависимости (см. `requirements.txt`)
 - Redis-сервер
-- Конфигурация в файле `config.ini`
+- Конфигурация в файле `settings.py`
 
 ## Запуск
 1. Установите WSL и Redis.
 2. Установите зависимости:
    ```bash
    pip install -r requirements.txt
-3. Настройте конфигурацию (config.ini)
+3. Настройте конфигурацию
 4. Запустите сервер 
 	```bash
  	python main.py
 
 ## Тест /login (получение токена):
 	```bash
-	$body = "username=user&password=pass"
-	$response = Invoke-WebRequest -Uri http://localhost:8080/login -Method POST -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction Stop
-	$token = ($response.Content | ConvertFrom-Json).access_token
-	Write-Output $token
-
+	$login = Invoke-RestMethod -Uri "http://127.0.0.1:8080/login" -Method Post -ContentType "application/x-www-form-urlencoded" -Body "username=admin&password=any"
+ 	$token = $login.access_token
+	$token
+ 
 ## Тест /write (запись данных):
 	```bash
-	$response = Invoke-WebRequest -Uri http://localhost:8080/write -Method POST -Body '{"data": "Test Data"}' -Headers @{"Authorization"="Bearer $token"; "Content-Type"="application/json"} -ErrorAction Stop
-	Write-Output $response.StatusCode
-	Write-Output $response.Content
-
+	$body = @{ data = "task 1" } | ConvertTo-Json
+ 	Invoke-RestMethod -Uri "http://127.0.0.1:8080/write" -Method Post -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body $body
+	
 ## Тест /read (чтение данных):
 	```bash
-	$response = Invoke-WebRequest -Uri http://localhost:8080/read -Method GET -Headers @{"Authorization"="Bearer $token"} -ErrorAction Stop
-	Write-Output $response.StatusCode
-	Write-Output $response.Content
+	Invoke-RestMethod -Uri "http://127.0.0.1:8080/read" -Headers @{ Authorization = "Bearer $token" }
 
 ## Тест /longpoll:
 #### Окно 1:
 	```bash
-	$response = Invoke-WebRequest -Uri http://localhost:8080/longpoll -Method GET -Headers @{"Authorization"="Bearer $token"} -ErrorAction Stop
-	Write-Output $response.StatusCode
-	Write-Output $response.Content
+	Invoke-RestMethod -Uri "http://127.0.0.1:8080/longpoll" -Headers @{ Authorization = "Bearer $token" }
  
 #### Окно 2(в течение 120 сек):
 	```bash
-	$response = Invoke-WebRequest -Uri http://localhost:8080/write -Method POST -Body '{"data": "Hello"}' -Headers @{"Authorization"="Bearer $token"; "Content-Type"="application/json"} -ErrorAction Stop
-	Write-Output $response.StatusCode
-	Write-Output $response.Content
+	$body2 = @{ data = "longpoll task" } | ConvertTo-Json
+ 	Invoke-RestMethod -Uri "http://127.0.0.1:8080/write" -Method Post -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body $body2
 
 ## Тест /metrics:
 	```bash

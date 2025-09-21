@@ -1,8 +1,8 @@
-fastapi==0.103.0
-uvicorn==0.23.2
-pydantic==2.4.2
-pydantic-settings==2.1.0
-pyjwt[cryptography]==2.8.0
+fastapi==0.116.1
+uvicorn==0.35.0
+pydantic==2.11.9
+pydantic-settings==2.10.1
+pyjwt[cryptography]==2.10.1
 redis==5.0.1
 prometheus-fastapi-instrumentator==6.0.0
-python-multipart==0.0.6
+python-multipart==0.0.20
